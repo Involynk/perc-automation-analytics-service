@@ -10,6 +10,7 @@ export class FacebookService {
 
   constructor(private config: ConfigService, private http: HttpService) {
     this.token = config.get('FACEBOOK_PAGE_ACCESS_TOKEN') || '';
+    this.graphBase = config.get('FACEBOOK_API_BASE_URL') || 'https://graph.facebook.com/v21.0';
   }
 
   async sendText(recipientId: string, text: string): Promise<any> {

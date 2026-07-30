@@ -21,7 +21,6 @@ const entities = [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '../../.env' }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
-      name: 'workflow',
       type: 'sqljs',
       location: process.env.DB_PATH || './perc_dev.db',
       entities,

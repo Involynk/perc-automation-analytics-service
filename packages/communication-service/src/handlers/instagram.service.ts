@@ -10,6 +10,7 @@ export class InstagramService {
 
   constructor(private config: ConfigService, private http: HttpService) {
     this.token = config.get('INSTAGRAM_ACCESS_TOKEN') || '';
+    this.graphBase = config.get('INSTAGRAM_API_BASE_URL') || 'https://graph.facebook.com/v21.0';
   }
 
   async sendText(recipientId: string, text: string): Promise<any> {

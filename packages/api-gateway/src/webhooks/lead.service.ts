@@ -1,17 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { LeadCapturedEvent } from '@perc/shared';
 import { CategoryService } from './category.service';
-import { RoutingService } from './routing.service';
-import { NotificationService } from './notification.service';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class LeadService {
+  private readonly logger = new Logger(LeadService.name);
+
   constructor(
     private supabase: SupabaseClient,
     private categoryService: CategoryService,
-    private routingService: RoutingService,
-    private notificationService: NotificationService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async captureInboundLead(params: {
@@ -67,33 +68,28 @@ export class LeadService {
       metadata: JSON.stringify(params.metadata || {}),
     });
 
-    await this.supabase.from('workflow_instances').insert({
-      id: crypto.randomUUID(),
-      lead_id: leadId,
-      current_state: 'new',
-    });
-
-    await this.supabase.from('timeline_events').insert({
-      id: crypto.randomUUID(),
-      lead_id: leadId,
-      event_type_id: 'evt_lead_created',
-      actor_type: 'automation',
-      description: `Lead captured via ${params.source}`,
-      metadata: JSON.stringify(params.metadata || {}),
-    });
-
     if (params.message) {
       await this.storeMessage(leadId, params.source, params.message, params.content_type || 'text', params.channel_message_id);
     }
-
-    await this.notificationService.notifyAdmins(leadId, params.first_name, params.source);
 
     await this.supabase
       .from('leads')
       .update({ category: categoryStr })
       .eq('id', leadId);
 
-    await this.routingService.routeLead(leadId, params.source, categories);
+    this.eventEmitter.emitAsync(
+      'lead.captured',
+      new LeadCapturedEvent(
+        leadId,
+        params.source,
+        params.first_name,
+        params.phone || null,
+        params.email || null,
+        categories,
+        params.message,
+        params.metadata,
+      ),
+    ).catch((err: Error) => this.logger.error(`lead.captured handler failed: ${err.message}`, err.stack));
 
     return leadId;
   }

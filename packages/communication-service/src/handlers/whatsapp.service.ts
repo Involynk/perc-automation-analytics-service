@@ -13,7 +13,7 @@ export class WhatsAppService {
     this.token = config.get('WHATSAPP_ACCESS_TOKEN') || '';
     this.phoneNumberId = config.get('WHATSAPP_PHONE_NUMBER_ID') || '';
     const version = config.get('WHATSAPP_API_VERSION') || 'v21.0';
-    this.baseUrl = `https://graph.facebook.com/${version}`;
+    this.baseUrl = config.get('WHATSAPP_API_BASE_URL') || `https://graph.facebook.com/${version}`;
   }
 
   async sendText(to: string, text: string, previewUrl = false): Promise<any> {
