@@ -1,5 +1,6 @@
 export * from './enums';
 export * from './constants';
+export * from './trigger-events';
 export * from './interfaces';
 export * from './entities';
 export * from './database-seed';

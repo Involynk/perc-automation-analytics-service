@@ -1,8 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { CATEGORY_KEYWORDS, CATEGORY_MESSAGES, ORDERED_CATEGORIES } from '@perc/shared';
+import { SupabaseClient } from '@supabase/supabase-js';
+import {
+  CATEGORY_KEYWORDS,
+  ORDERED_CATEGORIES,
+  DEFAULT_TRIGGER_EVENT,
+  ORDERED_TRIGGER_EVENTS,
+  TRIGGER_HANDOVER_COMPLAINT,
+  TRIGGER_HANDOVER_REQUESTED,
+  TRIGGER_KEYWORDS,
+} from '@perc/shared';
 
 @Injectable()
 export class CategoryService {
+  constructor(private supabase: SupabaseClient) {}
+
   detect(text: string | null | undefined): string[] {
     if (!text) return ['general_enquiry'];
 
@@ -19,52 +30,79 @@ export class CategoryService {
     return matched.length > 0 ? matched : ['general_enquiry'];
   }
 
-  composeAskMessage(firstName: string, categories?: string[]): string {
-    if (!categories || categories.includes('general_enquiry')) {
-      return `Hi ${firstName}! Thank you for reaching out! I'd be happy to help you with the information you need. Please share your WhatsApp number so I can send you all the details there.`;
+  detectTriggerEvent(text: string | null | undefined): string {
+    if (!text) return DEFAULT_TRIGGER_EVENT;
+
+    const lower = text.toLowerCase();
+
+    if (/(talk to a human|talk to human|speak to counselor|speak to a counselor|call me|contact counselor|human agent|real person)/.test(lower)) {
+      return TRIGGER_HANDOVER_REQUESTED;
+    }
+    if (/(frustrated|angry|complaint|worst|terrible|unhelpful|refund my money)/.test(lower)) {
+      return TRIGGER_HANDOVER_COMPLAINT;
     }
 
-    const topics: string[] = [];
-    for (const cat of ORDERED_CATEGORIES) {
-      if (categories.includes(cat)) {
-        const msg = CATEGORY_MESSAGES[cat];
-        if (msg) topics.push(msg);
+    for (const evt of ORDERED_TRIGGER_EVENTS) {
+      const keywords = TRIGGER_KEYWORDS[evt];
+      if (keywords && keywords.some((kw) => lower.includes(kw))) {
+        return evt;
       }
     }
 
-    let greeting: string;
-    if (topics.length === 1) {
-      greeting = `Thank you for your interest in ${topics[0]}!`;
-    } else if (topics.length === 2) {
-      greeting = `Thank you for your interest in ${topics[0]} and ${topics[1]}!`;
-    } else {
-      const last = topics.pop();
-      greeting = `Thank you for your interest in ${topics.join(', ')}, and ${last}!`;
-    }
-
-    return `Hi ${firstName}! ${greeting} Please share your WhatsApp number so I can send you all the details there.`;
+    return DEFAULT_TRIGGER_EVENT;
   }
 
-  composeGenericMessage(firstName: string, categories?: string[]): string {
-    if (!categories || categories.includes('general_enquiry')) {
-      return `Hi ${firstName}! Thank you for reaching out! We will get back to you shortly.`;
-    }
+  computeConfidence(text: string | null | undefined, triggerEvent: string): number {
+    if (!text) return 0.3;
 
-    const topics: string[] = [];
-    for (const cat of ORDERED_CATEGORIES) {
-      if (categories.includes(cat)) {
-        const msg = CATEGORY_MESSAGES[cat];
-        if (msg) topics.push(msg);
+    if (triggerEvent === DEFAULT_TRIGGER_EVENT) return 0.35;
+
+    const lower = text.toLowerCase();
+    const keywords = TRIGGER_KEYWORDS[triggerEvent] || [];
+    const hits = keywords.filter((kw) => lower.includes(kw)).length;
+
+    if (hits <= 0) return 0.4;
+    return Math.min(0.98, 0.55 + hits * 0.12);
+  }
+
+  async detectEntities(
+    text: string | null | undefined,
+  ): Promise<{ course_id?: string; branch_id?: string }> {
+    if (!text) return {};
+
+    const lower = text.toLowerCase();
+    const entities: { course_id?: string; branch_id?: string } = {};
+
+    const { data: courses } = await this.supabase
+      .from('courses')
+      .select('id, name')
+      .eq('is_active', true);
+
+    if (courses) {
+      for (const c of courses) {
+        const tokens = c.name.toLowerCase().split(' ').filter((t: string) => t.length > 1);
+        if (tokens.some((t: string) => lower.includes(t))) {
+          entities.course_id = c.id;
+          break;
+        }
       }
     }
 
-    if (topics.length === 1) {
-      return `Hi ${firstName}! Thank you for your interest in ${topics[0]}! We will get back to you shortly.`;
-    } else if (topics.length === 2) {
-      return `Hi ${firstName}! Thank you for your interest in ${topics[0]} and ${topics[1]}! We will get back to you shortly.`;
-    } else {
-      const last = topics.pop();
-      return `Hi ${firstName}! Thank you for your interest in ${topics.join(', ')}, and ${last}! We will get back to you shortly.`;
+    const { data: branches } = await this.supabase
+      .from('branches')
+      .select('id, name')
+      .eq('is_active', true);
+
+    if (branches) {
+      for (const b of branches) {
+        const tokens = b.name.toLowerCase().split(' ').filter((t: string) => t.length > 2);
+        if (tokens.some((t: string) => lower.includes(t))) {
+          entities.branch_id = b.id;
+          break;
+        }
+      }
     }
+
+    return entities;
   }
 }

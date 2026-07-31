@@ -78,20 +78,24 @@ async function main() {
 
   const ts = Date.now();
 
-  // Scenario 1: WhatsApp lead with phone → should send welcome via WhatsApp + create promise
+  // Scenario 1: WhatsApp lead with phone → Response Engine sends hydrated fee template
   await clearRecorded();
   try {
     const r1 = await axios.post('http://localhost:3000/api/leads/capture', {
       first_name: 'Rahul',
       phone: `+9198765432${ts % 10}`,
       source: 'whatsapp',
-      message: 'fees and courses',
+      message: 'how much is the b.tech fee?',
     });
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 2500));
     const recorded = await fetchRecorded();
     const waMsgs = recorded.filter((m: any) => m.channel === 'whatsapp');
     if (waMsgs.length > 0) {
-      console.log(`✓ Lead ${r1.data.lead_id}: WhatsApp welcome sent to ${waMsgs[0].to}`);
+      const text = waMsgs[0].text;
+      const hydrated = text.includes('fee for B.Tech') || text.includes('fee structure');
+      console.log(`✓ Lead ${r1.data.lead_id}: Response Engine sent to ${waMsgs[0].to}`);
+      console.log(`    "${text.slice(0, 120)}${text.length > 120 ? '...' : ''}"`);
+      if (!hydrated) console.log('    ⚠ message not hydrated with course data');
       passed++;
     } else {
       const chans = recorded.map((m: any) => m.channel);

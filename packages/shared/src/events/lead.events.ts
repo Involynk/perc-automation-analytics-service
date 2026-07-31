@@ -8,6 +8,11 @@ export class LeadCapturedEvent {
     public readonly categories: string[],
     public readonly message: string | undefined,
     public readonly metadata: Record<string, unknown> | undefined,
+    public readonly triggerEvent?: string,
+    public readonly courseId?: string,
+    public readonly branchId?: string,
+    public readonly counselorId?: string,
+    public readonly confidence?: number,
   ) {}
 }
 

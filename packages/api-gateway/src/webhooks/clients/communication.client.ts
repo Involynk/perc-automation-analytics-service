@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ResponseEvent } from '@perc/shared';
 import axios from 'axios';
 
 export interface SendMessageResult {
@@ -30,6 +31,26 @@ export class CommunicationClient {
       const error = err.response?.data?.message || err.message || 'Unknown error';
       this.logger.warn(`Communication Service send failed (${channel}): ${error}`);
       return { success: false, channel, error };
+    }
+  }
+
+  async sendResponse(event: ResponseEvent): Promise<SendMessageResult> {
+    try {
+      const { data } = await axios.post<{ success: boolean; channel?: string; messageId?: string; error?: string }>(
+        `${this.baseUrl}/api/response`,
+        event,
+        { timeout: 20000 },
+      );
+      return {
+        success: data.success,
+        channel: data.channel || event.target.preferred_channel,
+        messageId: data.messageId,
+        error: data.error,
+      };
+    } catch (err: any) {
+      const error = err.response?.data?.message || err.message || 'Unknown error';
+      this.logger.warn(`Response Engine send failed: ${error}`);
+      return { success: false, channel: event.target.preferred_channel, error };
     }
   }
 }

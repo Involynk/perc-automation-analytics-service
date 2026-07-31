@@ -10,3 +10,5 @@ export { Notification } from './notification.entity';
 export { EventType } from './event-type.entity';
 export { Course, LeadCourse } from './course.entity';
 export { Setting } from './setting.entity';
+export { Branch } from './branch.entity';
+export { Template } from './template.entity';

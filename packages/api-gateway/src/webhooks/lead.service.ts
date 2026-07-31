@@ -37,6 +37,10 @@ export class LeadService {
 
     const categoryStr = categories.join(',');
 
+    const triggerEvent = this.categoryService.detectTriggerEvent(params.message);
+    const confidence = this.categoryService.computeConfidence(params.message, triggerEvent);
+    const entities = await this.categoryService.detectEntities(params.message);
+
     if (params.phone) {
       const { data: existing } = await this.supabase
         .from('leads')
@@ -56,6 +60,14 @@ export class LeadService {
       }
     }
 
+    const metadata = {
+      ...(params.metadata || {}),
+      trigger_event: triggerEvent,
+      nlp_confidence_score: confidence,
+      course_id: entities.course_id || null,
+      branch_id: entities.branch_id || null,
+    };
+
     await this.supabase.from('leads').insert({
       id: leadId,
       first_name: params.first_name.slice(0, 100),
@@ -65,7 +77,7 @@ export class LeadService {
       source_reference_id: params.source_reference_id || null,
       category: categoryStr,
       status: 'new',
-      metadata: JSON.stringify(params.metadata || {}),
+      metadata: JSON.stringify(metadata),
     });
 
     if (params.message) {
@@ -88,6 +100,11 @@ export class LeadService {
         categories,
         params.message,
         params.metadata,
+        triggerEvent,
+        entities.course_id,
+        entities.branch_id,
+        undefined,
+        confidence,
       ),
     ).catch((err: Error) => this.logger.error(`lead.captured handler failed: ${err.message}`, err.stack));
 

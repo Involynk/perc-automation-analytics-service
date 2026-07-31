@@ -33,6 +33,13 @@ export class LeadCapturedListener {
 
     await this.notificationService.notifyAdmins(event.leadId, event.firstName, event.source);
 
-    await this.routingService.routeLead(event.leadId, event.source, event.categories);
+    await this.routingService.routeLead(event.leadId, event.source, {
+      triggerEvent: event.triggerEvent,
+      courseId: event.courseId,
+      branchId: event.branchId,
+      counselorId: event.counselorId,
+      confidence: event.confidence,
+      rawUserMessage: event.message,
+    });
   }
 }
