@@ -97,3 +97,16 @@ export const TWO_WAY_CHANNELS: string[] = [
   ChannelName.EMAIL,
   ChannelName.WEBSITE_CHAT,
 ];
+
+export enum MeetingType {
+  CALL = 'call',
+  MEETING = 'meeting',
+  DEMO = 'demo',
+}
+
+export enum MeetingStatus {
+  SCHEDULED = 'scheduled',
+  COMPLETED = 'completed',
+  MISSED = 'missed',
+  CANCELLED = 'cancelled',
+}

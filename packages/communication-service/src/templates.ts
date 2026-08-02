@@ -16,6 +16,14 @@ import {
   TRIGGER_INTENT_HOSTEL_FACILITY,
   TRIGGER_HANDOVER_REQUESTED,
   TRIGGER_HANDOVER_COMPLAINT,
+  TRIGGER_MEETING_REQUESTED,
+  TRIGGER_MEETING_CONFIRMED,
+  TRIGGER_MEETING_REMINDER,
+  TRIGGER_MEETING_MISSED,
+  TRIGGER_MEETING_RESCHEDULED,
+  TRIGGER_MEETING_CANCELLED,
+  TRIGGER_MEETING_COMPLETED,
+  TRIGGER_MEETING_FEEDBACK_REQUEST,
 } from '@perc/shared';
 
 export const TEMPLATES: Record<string, string> = {
@@ -36,6 +44,14 @@ export const TEMPLATES: Record<string, string> = {
   [TRIGGER_INTENT_HOSTEL_FACILITY]: 'Hi {{lead_name}}, we offer hostel accommodation near {{branch_name}}. Our team will share the hostel details with you.',
   [TRIGGER_HANDOVER_REQUESTED]: 'Hi {{lead_name}}, I am connecting you with our team right away. {{counselor_text}}They will reach out to you within 15 minutes.',
   [TRIGGER_HANDOVER_COMPLAINT]: 'Hi {{lead_name}}, we are sorry to hear that. Our team will look into this immediately and get back to you.',
+  [TRIGGER_MEETING_REQUESTED]: 'Hi {{lead_name}}, of course! Our counselor is available for a {{meeting_type}}. Here are the next available slots:\n{{slot_options}}\nReply with your preferred time (e.g. "1") or ask for more options.',
+  [TRIGGER_MEETING_CONFIRMED]: 'Hi {{lead_name}}, your {{meeting_type}} is confirmed for {{meeting_time}} with {{counselor_name}}. You can reschedule by replying "reschedule".',
+  [TRIGGER_MEETING_REMINDER]: 'Hi {{lead_name}}, friendly reminder: your {{meeting_type}} with {{counselor_name}} is coming up at {{meeting_time}}. Reply "reschedule" if you need to move it.',
+  [TRIGGER_MEETING_MISSED]: 'Hi {{lead_name}}, we missed you for your {{meeting_type}}. No worries! Our counselor is available again at:\n{{slot_options}}\nReply with your preferred time to rebook.',
+  [TRIGGER_MEETING_RESCHEDULED]: 'Hi {{lead_name}}, your {{meeting_type}} has been rescheduled to {{meeting_time}}. See you then!',
+  [TRIGGER_MEETING_CANCELLED]: 'Hi {{lead_name}}, your {{meeting_type}} has been cancelled. Would you like to pick a new time? Just reply and we will set it up.',
+  [TRIGGER_MEETING_COMPLETED]: 'Hi {{lead_name}}, thanks for your time today! We hope the {{meeting_type}} was helpful.',
+  [TRIGGER_MEETING_FEEDBACK_REQUEST]: 'Hi {{lead_name}}, how was your {{meeting_type}}? Please reply with a rating from 1 to 5 so we can improve.',
 };
 
 export function renderTemplate(content: string, vars: Record<string, string>): string {

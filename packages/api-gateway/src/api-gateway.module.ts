@@ -9,6 +9,7 @@ import { LeadController } from './webhooks/lead.controller';
 import { MessageController } from './webhooks/message.controller';
 import { WorkflowController } from './webhooks/workflow.controller';
 import { PromiseController } from './webhooks/promise.controller';
+import { MeetingController } from './webhooks/meeting.controller';
 import { LeadService } from './webhooks/lead.service';
 import { EngineModule } from './webhooks/engine.module';
 
@@ -25,6 +26,7 @@ import { EngineModule } from './webhooks/engine.module';
     MessageController,
     WorkflowController,
     PromiseController,
+    MeetingController,
   ],
   providers: [
     LeadService,

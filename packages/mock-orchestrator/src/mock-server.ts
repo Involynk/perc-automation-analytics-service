@@ -34,6 +34,27 @@ export function startMockServer(port: number): Promise<http.Server> {
           return;
         }
 
+        // Mock admin availability (free/busy) for the Call & Meeting Coordination Engine
+        if (path.includes('/freebusy') && (method === 'GET' || method === 'POST')) {
+          const busy = [
+            {
+              start: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+              end: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+            },
+          ];
+          res.writeHead(200, headers);
+          res.end(JSON.stringify({ busy, working_hours: { start: '09:00', end: '18:00', timezone: 'Asia/Kolkata' } }));
+          return;
+        }
+
+        // POST /notify-admin — mock admin notification delivery
+        if (method === 'POST' && path.includes('/notify-admin')) {
+          record('admin-notify', 'admin', payload.message || payload.title || '(notification)');
+          res.writeHead(200, headers);
+          res.end(JSON.stringify({ success: true }));
+          return;
+        }
+
         // WhatsApp send message
         if (method === 'POST' && path.includes('/messages') && payload.messaging_product === 'whatsapp') {
           record('whatsapp', payload.to, payload.text?.body || '(template)');

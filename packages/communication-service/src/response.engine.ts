@@ -100,6 +100,10 @@ export class ResponseEngine {
     const vars: Record<string, string> = {
       lead_name: context?.lead_name || 'there',
       raw_user_message: context?.raw_user_message || '',
+      meeting_type: context?.meeting_type || 'meeting',
+      meeting_time: context?.meeting_time || '',
+      slot_options: context?.slot_options || '',
+      counselor_name: context?.counselor_name || 'our team',
     };
 
     if (context?.course_id) {

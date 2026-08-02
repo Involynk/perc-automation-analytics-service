@@ -18,6 +18,14 @@ import {
   TRIGGER_INTENT_HOSTEL_FACILITY,
   TRIGGER_HANDOVER_REQUESTED,
   TRIGGER_HANDOVER_COMPLAINT,
+  TRIGGER_MEETING_REQUESTED,
+  TRIGGER_MEETING_CONFIRMED,
+  TRIGGER_MEETING_REMINDER,
+  TRIGGER_MEETING_MISSED,
+  TRIGGER_MEETING_RESCHEDULED,
+  TRIGGER_MEETING_CANCELLED,
+  TRIGGER_MEETING_COMPLETED,
+  TRIGGER_MEETING_FEEDBACK_REQUEST,
 } from './trigger-events';
 
 function uuid(): string {
@@ -50,6 +58,9 @@ const SETTINGS = [
   { key: 'working_hours', value: '{"start": "09:00", "end": "18:00", "timezone": "Asia/Kolkata"}', description: 'Default working hours', category: 'calendar' },
   { key: 'followup_timings', value: '{"first": "2 hours", "second": "1 day", "third": "3 days", "escalation": "24 hours"}', description: 'Follow-up timing intervals', category: 'automation' },
   { key: 'auto_response_enabled', value: 'true', description: 'Enable/disable auto responses globally', category: 'automation' },
+  { key: 'default_meeting_duration', value: '30', description: 'Default meeting duration in minutes', category: 'calendar' },
+  { key: 'meeting_buffer_minutes', value: '15', description: 'Buffer time between meetings', category: 'calendar' },
+  { key: 'max_meetings_per_day', value: '10', description: 'Maximum meetings per admin per day', category: 'calendar' },
 ];
 
 const BRANCHES = [
@@ -190,6 +201,62 @@ const TEMPLATES: { id: string; name: string; template_type: string; content: str
     template_type: 'notification',
     content: 'Hi {{lead_name}}, we are sorry to hear that. Our team will look into this immediately and get back to you.',
     category: 'general',
+  },
+  {
+    id: 'tpl_meeting_requested',
+    name: TRIGGER_MEETING_REQUESTED,
+    template_type: 'demo_invitation',
+    content: 'Hi {{lead_name}}, of course! Our counselor is available for a {{meeting_type}}. Here are the next available slots: {{slot_options}} Reply with your preferred time (e.g. "1") or ask for more options.',
+    category: 'meeting',
+  },
+  {
+    id: 'tpl_meeting_confirmed',
+    name: TRIGGER_MEETING_CONFIRMED,
+    template_type: 'meeting_confirmation',
+    content: 'Hi {{lead_name}}, your {{meeting_type}} is confirmed for {{meeting_time}} with {{counselor_name}}. You can reschedule by replying "reschedule".',
+    category: 'meeting',
+  },
+  {
+    id: 'tpl_meeting_reminder',
+    name: TRIGGER_MEETING_REMINDER,
+    template_type: 'demo_reminder',
+    content: 'Hi {{lead_name}}, friendly reminder: your {{meeting_type}} with {{counselor_name}} is coming up at {{meeting_time}}. Reply "reschedule" if you need to move it.',
+    category: 'meeting',
+  },
+  {
+    id: 'tpl_meeting_missed',
+    name: TRIGGER_MEETING_MISSED,
+    template_type: 'notification',
+    content: 'Hi {{lead_name}}, we missed you for your {{meeting_type}}. No worries! Our counselor is available again at: {{slot_options}} Reply with your preferred time to rebook.',
+    category: 'meeting',
+  },
+  {
+    id: 'tpl_meeting_rescheduled',
+    name: TRIGGER_MEETING_RESCHEDULED,
+    template_type: 'reschedule_confirmation',
+    content: 'Hi {{lead_name}}, your {{meeting_type}} has been rescheduled to {{meeting_time}}. See you then!',
+    category: 'meeting',
+  },
+  {
+    id: 'tpl_meeting_cancelled',
+    name: TRIGGER_MEETING_CANCELLED,
+    template_type: 'cancellation_notice',
+    content: 'Hi {{lead_name}}, your {{meeting_type}} has been cancelled. Would you like to pick a new time? Just reply and we will set it up.',
+    category: 'meeting',
+  },
+  {
+    id: 'tpl_meeting_completed',
+    name: TRIGGER_MEETING_COMPLETED,
+    template_type: 'thank_you',
+    content: 'Hi {{lead_name}}, thanks for your time today! We hope the {{meeting_type}} was helpful.',
+    category: 'meeting',
+  },
+  {
+    id: 'tpl_meeting_feedback',
+    name: TRIGGER_MEETING_FEEDBACK_REQUEST,
+    template_type: 'notification',
+    content: 'Hi {{lead_name}}, how was your {{meeting_type}}? Please reply with a rating from 1 to 5 so we can improve.',
+    category: 'meeting',
   },
 ];
 

@@ -7,6 +7,7 @@ import {
   ORDERED_TRIGGER_EVENTS,
   TRIGGER_HANDOVER_COMPLAINT,
   TRIGGER_HANDOVER_REQUESTED,
+  TRIGGER_MEETING_REQUESTED,
   TRIGGER_KEYWORDS,
 } from '@perc/shared';
 
@@ -50,6 +51,19 @@ export class CategoryService {
     }
 
     return DEFAULT_TRIGGER_EVENT;
+  }
+
+  detectMeetingIntent(text: string | null | undefined): string | null {
+    if (!text) return null;
+
+    const lower = text.toLowerCase();
+    const keywords = TRIGGER_KEYWORDS[TRIGGER_MEETING_REQUESTED] || [];
+    if (keywords.some((kw) => lower.includes(kw))) {
+      if (/(book a demo|schedule a demo|demo)/.test(lower)) return 'demo';
+      if (/(book a call|schedule a call|call)/.test(lower)) return 'call';
+      return 'meeting';
+    }
+    return null;
   }
 
   computeConfidence(text: string | null | undefined, triggerEvent: string): number {

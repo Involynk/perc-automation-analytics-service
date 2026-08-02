@@ -83,7 +83,7 @@ async function main() {
   try {
     const r1 = await axios.post('http://localhost:3000/api/leads/capture', {
       first_name: 'Rahul',
-      phone: `+9198765432${ts % 10}`,
+      phone: `+9198765432${ts % 100}`,
       source: 'whatsapp',
       message: 'how much is the b.tech fee?',
     });
@@ -129,6 +129,104 @@ async function main() {
     }
   } catch (err: any) {
     console.log(`✗ Scenario 2 error: ${err.message}`);
+    failed++;
+  }
+
+  // Scenario 3: Call & Meeting Coordination Engine — book → confirm → reminder → complete → feedback
+  await clearRecorded();
+  try {
+    const leadRes = await axios.post('http://localhost:3000/api/leads/capture', {
+      first_name: 'Meera',
+      phone: `+9198765432${(ts + 1) % 100}`,
+      source: 'whatsapp',
+      message: 'how much is the b.tech fee?',
+    });
+    const leadId = leadRes.data.lead_id;
+    await new Promise(r => setTimeout(r, 1500));
+
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    tomorrow.setMinutes(0, 0, 0);
+    const bookRes = await axios.post('http://localhost:3000/api/meetings', {
+      lead_id: leadId,
+      scheduled_at: tomorrow.toISOString(),
+      meeting_type: 'call',
+    });
+    const meetingId = bookRes.data.meeting_id;
+    await new Promise(r => setTimeout(r, 1500));
+
+    const recorded = await fetchRecorded();
+    const confirm = recorded.find((m: any) => m.channel === 'whatsapp' && /confirmed/i.test(m.text));
+    if (confirm) {
+      console.log(`✓ Meeting booked ${meetingId}: confirmation sent → "${confirm.text.slice(0, 90)}..."`);
+      passed++;
+    } else {
+      console.log('✗ No meeting confirmation recorded');
+      failed++;
+      await axios.put(`http://localhost:3000/api/meetings/${meetingId}/cancel`).catch(() => {});
+    }
+
+    // Simulate meeting_reminder promise firing
+    await axios.post(`http://localhost:3000/api/meetings/${meetingId}/reminder`);
+    await new Promise(r => setTimeout(r, 1200));
+    const reminder = (await fetchRecorded()).find((m: any) => m.channel === 'whatsapp' && /reminder/i.test(m.text));
+    if (reminder) {
+      console.log(`✓ Reminder sent → "${reminder.text.slice(0, 90)}..."`);
+      passed++;
+    } else {
+      console.log('✗ No reminder recorded');
+      failed++;
+    }
+
+    // Complete + feedback request (simulating feedback promise firing)
+    await axios.put(`http://localhost:3000/api/meetings/${meetingId}/complete`);
+    await axios.post(`http://localhost:3000/api/meetings/${meetingId}/feedback-request`);
+    await new Promise(r => setTimeout(r, 1200));
+    const feedback = (await fetchRecorded()).find((m: any) => m.channel === 'whatsapp' && /rating/i.test(m.text));
+    if (feedback) {
+      console.log(`✓ Feedback request sent → "${feedback.text.slice(0, 90)}..."`);
+      passed++;
+    } else {
+      console.log('✗ No feedback request recorded');
+      failed++;
+    }
+
+    // Submit feedback → rating persisted
+    await axios.post(`http://localhost:3000/api/meetings/${meetingId}/feedback`, { rating: 5, feedback: 'Great call' });
+    const meeting = await axios.get(`http://localhost:3000/api/meetings/${meetingId}`);
+    if (meeting.data.feedback_rating === 5) {
+      console.log(`✓ Feedback recorded: ${meeting.data.feedback_rating}/5`);
+      passed++;
+    } else {
+      console.log('✗ Feedback rating not persisted');
+      failed++;
+    }
+  } catch (err: any) {
+    console.log(`✗ Scenario 3 error: ${err.message}`);
+    failed++;
+  }
+
+  // Scenario 4: Lead messages "book a call" → MeetingRequestedListener offers slots
+  await clearRecorded();
+  try {
+    const r4 = await axios.post('http://localhost:3000/api/leads/capture', {
+      first_name: 'Arjun',
+      phone: `+9198765432${(ts + 2) % 100}`,
+      source: 'whatsapp',
+      message: 'book a call',
+    });
+    await new Promise(r => setTimeout(r, 2500));
+    const recorded = await fetchRecorded();
+    const slots = recorded.find((m: any) => m.channel === 'whatsapp' && /available slots/i.test(m.text));
+    if (slots) {
+      console.log(`✓ Meeting intent ${r4.data.lead_id}: slot options sent → "${slots.text.slice(0, 100)}..."`);
+      passed++;
+    } else {
+      const texts = recorded.map((m: any) => m.text?.slice(0, 60)).join(' | ');
+      console.log(`✗ No slot options recorded (${texts || 'none'})`);
+      failed++;
+    }
+  } catch (err: any) {
+    console.log(`✗ Scenario 4 error: ${err.message}`);
     failed++;
   }
 

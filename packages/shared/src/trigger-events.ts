@@ -32,6 +32,30 @@ export const TRIGGER_HANDOVER_REQUESTED = 'handover.requested';
 export const TRIGGER_HANDOVER_CONFIDENCE_LOW = 'handover.confidence_low';
 export const TRIGGER_HANDOVER_COMPLAINT = 'handover.complaint';
 
+export const TRIGGER_MEETING_REQUESTED = 'meeting.requested';
+export const TRIGGER_MEETING_CONFIRMED = 'meeting.confirmed';
+export const TRIGGER_MEETING_REMINDER = 'meeting.reminder';
+export const TRIGGER_MEETING_MISSED = 'meeting.missed';
+export const TRIGGER_MEETING_RESCHEDULED = 'meeting.rescheduled';
+export const TRIGGER_MEETING_CANCELLED = 'meeting.cancelled';
+export const TRIGGER_MEETING_COMPLETED = 'meeting.completed';
+export const TRIGGER_MEETING_FEEDBACK_REQUEST = 'meeting.feedback_request';
+
+export const MEETING_TRIGGERS = [
+  TRIGGER_MEETING_REQUESTED,
+  TRIGGER_MEETING_CONFIRMED,
+  TRIGGER_MEETING_REMINDER,
+  TRIGGER_MEETING_MISSED,
+  TRIGGER_MEETING_RESCHEDULED,
+  TRIGGER_MEETING_CANCELLED,
+  TRIGGER_MEETING_COMPLETED,
+  TRIGGER_MEETING_FEEDBACK_REQUEST,
+];
+
+export function isMeetingTrigger(triggerEvent: string): boolean {
+  return MEETING_TRIGGERS.includes(triggerEvent);
+}
+
 export const TRIGGER_KEYWORDS: Record<string, string[]> = {
   [TRIGGER_INTENT_REFUND_POLICY]: ['refund', 'cancellation', 'money back'],
   [TRIGGER_INTENT_SCHOLARSHIP]: ['scholarship', 'discount', 'financial aid', 'concession', 'stipend'],
@@ -47,9 +71,11 @@ export const TRIGGER_KEYWORDS: Record<string, string[]> = {
   [TRIGGER_INTENT_TIMINGS]: ['timing', 'timings', 'open', 'office hours', 'batch time', 'class time', 'schedule'],
   [TRIGGER_INTENT_CONTACT_DETAILS]: ['phone number', 'contact number', 'email address', 'contact details', 'reach you', 'call'],
   [TRIGGER_INTENT_GENERAL_INFO]: ['about perc', 'about your college', 'tell me about', 'about the college', 'introduce', 'information', 'what is perc', 'details about'],
+  [TRIGGER_MEETING_REQUESTED]: ['book a call', 'book a meeting', 'schedule a call', 'schedule a meeting', 'schedule a demo', 'book a demo', 'want to talk', 'need to talk', 'talk to someone', 'talk to a counselor', 'speak to someone', 'appointment', 'meeting', 'demo', 'consultation', 'talk to a human'],
 };
 
 export const ORDERED_TRIGGER_EVENTS = [
+  TRIGGER_MEETING_REQUESTED,
   TRIGGER_INTENT_REFUND_POLICY,
   TRIGGER_INTENT_SCHOLARSHIP,
   TRIGGER_INTENT_FEE_STRUCTURE,

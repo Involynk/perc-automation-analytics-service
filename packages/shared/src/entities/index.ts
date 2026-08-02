@@ -12,3 +12,4 @@ export { Course, LeadCourse } from './course.entity';
 export { Setting } from './setting.entity';
 export { Branch } from './branch.entity';
 export { Template } from './template.entity';
+export { Meeting } from './meeting.entity';
