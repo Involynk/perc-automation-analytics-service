@@ -282,7 +282,7 @@ export class MeetingService {
       updated_at: new Date().toISOString(),
     }).eq('id', meetingId);
 
-    await this.updateLeadStatus(meeting.lead_id, 'meeting_completed');
+    await this.updateLeadStatus({ id: meeting.lead_id }, 'meeting_completed');
 
     await this.supabase.from('timeline_events').insert({
       id: crypto.randomUUID(),

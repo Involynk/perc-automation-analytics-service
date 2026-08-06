@@ -3,3 +3,4 @@ export * from './promise.events';
 export * from './message.events';
 export * from './response.events';
 export * from './meeting.events';
+export * from './analytics.events';

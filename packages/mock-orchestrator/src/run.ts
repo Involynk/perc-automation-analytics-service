@@ -83,7 +83,7 @@ async function main() {
   try {
     const r1 = await axios.post('http://localhost:3000/api/leads/capture', {
       first_name: 'Rahul',
-      phone: `+9198765432${ts % 100}`,
+      phone: `+9198765432${String(ts).slice(-6)}`,
       source: 'whatsapp',
       message: 'how much is the b.tech fee?',
     });
@@ -137,7 +137,7 @@ async function main() {
   try {
     const leadRes = await axios.post('http://localhost:3000/api/leads/capture', {
       first_name: 'Meera',
-      phone: `+9198765432${(ts + 1) % 100}`,
+      phone: `+9198765432${String(ts + 1).slice(-6)}`,
       source: 'whatsapp',
       message: 'how much is the b.tech fee?',
     });
@@ -210,7 +210,7 @@ async function main() {
   try {
     const r4 = await axios.post('http://localhost:3000/api/leads/capture', {
       first_name: 'Arjun',
-      phone: `+9198765432${(ts + 2) % 100}`,
+      phone: `+9198765432${String(ts + 2).slice(-6)}`,
       source: 'whatsapp',
       message: 'book a call',
     });
@@ -227,6 +227,50 @@ async function main() {
     }
   } catch (err: any) {
     console.log(`✗ Scenario 4 error: ${err.message}`);
+    failed++;
+  }
+
+  // Scenario 5: Analytics Engine — capture leads, book+complete a meeting, verify real-time metrics
+  try {
+    const aLead = await axios.post('http://localhost:3000/api/leads/capture', {
+      first_name: 'Analytics',
+      phone: `+9198765433${String(ts + 3).slice(-6)}`,
+      source: 'whatsapp',
+      message: 'how much is the b.tech fee?',
+    });
+    const aLeadId = aLead.data.lead_id;
+    await new Promise(r => setTimeout(r, 1200));
+
+    const aMeeting = await axios.post('http://localhost:3000/api/meetings', {
+      lead_id: aLeadId,
+      scheduled_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      meeting_type: 'call',
+    });
+    await new Promise(r => setTimeout(r, 800));
+    await axios.put(`http://localhost:3000/api/meetings/${aMeeting.data.meeting_id}/complete`);
+    await new Promise(r => setTimeout(r, 800));
+
+    const overview = (await axios.get('http://localhost:3000/api/analytics/overview')).data;
+    const conversions = (await axios.get('http://localhost:3000/api/analytics/conversions')).data;
+    const responseTimes = (await axios.get('http://localhost:3000/api/analytics/response-times')).data;
+
+    if (overview.total_leads >= 1 && (overview.meetings_by_status?.completed || 0) >= 1) {
+      console.log(`✓ Analytics overview: leads=${overview.total_leads}, meetings=${overview.total_meetings}, response=${responseTimes.avg_seconds}s`);
+      passed++;
+    } else {
+      console.log(`✗ Analytics overview incomplete: ${JSON.stringify(overview)}`);
+      failed++;
+    }
+
+    if (conversions.funnel?.meeting_completed >= 1 && responseTimes.samples >= 1) {
+      console.log(`✓ Conversions funnel updated (${conversions.enquiry_to_meeting_completed}%), response-time samples=${responseTimes.samples}`);
+      passed++;
+    } else {
+      console.log(`✗ Conversions/response-time not reflected: ${JSON.stringify(conversions)} / ${JSON.stringify(responseTimes)}`);
+      failed++;
+    }
+  } catch (err: any) {
+    console.log(`✗ Scenario 5 error: ${err.message}`);
     failed++;
   }
 

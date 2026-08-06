@@ -52,6 +52,7 @@ const EVENT_TYPES = [
   { id: 'evt_reply_received', name: 'Reply Received', description: 'Lead replied to a message', category: 'lead' },
   { id: 'evt_admin_action', name: 'Admin Action', description: 'Manual action performed by admin', category: 'admin' },
   { id: 'evt_followup_sent', name: 'Follow-up Sent', description: 'Automated follow-up message sent', category: 'automation' },
+  { id: 'evt_analytics_updated', name: 'Analytics Updated', description: 'Analytics metric updated', category: 'analytics' },
 ];
 
 const SETTINGS = [
@@ -61,6 +62,9 @@ const SETTINGS = [
   { key: 'default_meeting_duration', value: '30', description: 'Default meeting duration in minutes', category: 'calendar' },
   { key: 'meeting_buffer_minutes', value: '15', description: 'Buffer time between meetings', category: 'calendar' },
   { key: 'max_meetings_per_day', value: '10', description: 'Maximum meetings per admin per day', category: 'calendar' },
+  { key: 'target_daily_leads', value: '50', description: 'Target leads per day for dashboards', category: 'analytics' },
+  { key: 'seat_target', value: '150', description: 'Confirmed admissions target for the intake', category: 'analytics' },
+  { key: 'avg_ticket_value', value: '100000', description: 'Average tuition value per admission for revenue estimation', category: 'analytics' },
 ];
 
 const BRANCHES = [

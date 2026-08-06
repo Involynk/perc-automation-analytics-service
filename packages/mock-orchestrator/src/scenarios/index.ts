@@ -2,11 +2,13 @@ import { clear } from '../recorder';
 import * as leadWithPhone from './lead-with-phone';
 import * as leadWithoutPhone from './lead-without-phone';
 import * as meetingEngine from './meeting-engine';
+import * as analyticsEngine from './analytics-engine';
 
 const scenarios: { name: string; run: () => Promise<boolean> }[] = [
   { name: 'Lead with phone → WhatsApp welcome message', run: leadWithPhone.run },
   { name: 'Lead without phone → ask WhatsApp number', run: leadWithoutPhone.run },
   { name: 'Meeting & Call Coordination Engine → book, remind, complete, feedback', run: meetingEngine.run },
+  { name: 'Analytics Engine → event-first metrics & dashboards', run: analyticsEngine.run },
 ];
 
 export async function runAll(): Promise<boolean> {

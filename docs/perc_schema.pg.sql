@@ -569,6 +569,22 @@ CREATE INDEX idx_analytics_created ON analytics_events(created_at);
 CREATE INDEX idx_analytics_lead ON analytics_events(lead_id);
 
 -- ============================================================================
+-- 25b. ANALYTICS_METRICS — Pre-aggregated counters/rollups for dashboards (CQRS read model)
+-- ============================================================================
+CREATE TABLE analytics_metrics (
+    id              TEXT PRIMARY KEY,
+    metric_key      TEXT NOT NULL,
+    dimension       TEXT NOT NULL DEFAULT 'overall',
+    period          TEXT NOT NULL,
+    count_value     INTEGER DEFAULT 0,
+    sum_value       NUMERIC DEFAULT 0,
+    updated_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_analytics_metric_key ON analytics_metrics(metric_key);
+CREATE INDEX idx_analytics_metric_period ON analytics_metrics(period);
+
+-- ============================================================================
 -- 26. SETTINGS — System configuration
 -- ============================================================================
 CREATE TABLE settings (

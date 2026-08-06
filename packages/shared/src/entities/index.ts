@@ -13,3 +13,5 @@ export { Setting } from './setting.entity';
 export { Branch } from './branch.entity';
 export { Template } from './template.entity';
 export { Meeting } from './meeting.entity';
+export { AnalyticsEvent } from './analytics-event.entity';
+export { AnalyticsMetric } from './analytics-metric.entity';
