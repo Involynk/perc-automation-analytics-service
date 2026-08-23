@@ -41,19 +41,7 @@ export class RoutingService {
 
     if (!lead) return;
 
-    const event = this.buildResponseEvent(lead, sourceChannel, intent);
-
-    if (lead.phone && lead.phone.startsWith('+')) {
-      await this.updateLeadState(lead, 'information_shared', 'information_shared');
-      await this.scheduleFollowUp(lead.id, { action: 'check_whatsapp_reply', channel: 'whatsapp', attempt: 1 });
-    } else if (TWO_WAY_CHANNELS.includes(sourceChannel)) {
-      await this.updateLeadState(lead, 'waiting', 'waiting');
-      await this.scheduleFollowUp(lead.id, { action: 'check_whatsapp_reply', channel: sourceChannel, attempt: 1 });
-    }
-
-    this.eventEmitter
-      .emitAsync('response.triggered', event)
-      .catch((err: Error) => this.logger.error(`response.triggered handler failed: ${err.message}`, err.stack));
+    this.logger.log(`[RoutingService] Inbound lead ${leadId} captured via ${sourceChannel}. Ingestion complete.`);
   }
 
   private buildResponseEvent(lead: any, sourceChannel: string, intent?: RouteIntent): ResponseEvent {

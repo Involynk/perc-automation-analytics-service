@@ -1,0 +1,41 @@
+# SERVICE_CONNECTIONS.yaml — analytics-service
+# Format mirrors the master SERVICE_CONNECTIONS_MAP.yaml at the repo root.
+
+service: analytics-service
+description: >
+  Real-time analytics & BI reporting engine. Aggregates conversion funnels, response SLAs,
+  meeting booking rates, follow-up re-engagement metrics, and channel attribution.
+  Passive subscriber to domain events — never produces outbound domain events.
+
+subscribes_to:
+  - topic: perc.lead-events
+    from_service: lead-capture-service
+    filter: none
+    action: "Records lead source channel attribution (WhatsApp, Instagram, Meta Ads) and arrival velocity metrics"
+
+  - topic: perc.response.sent
+    from_service: response-service
+    filter: none
+    action: "Tracks AI response time SLA, interactive response rates, and message delivery performance"
+
+  - topic: perc.followup.sent
+    from_service: response-service
+    filter: none
+    action: "Tracks 2-hour inactivity follow-up re-engagement conversion rates and campaign effectiveness"
+
+  - topic: perc.meeting-events
+    from_service: meeting-service
+    filter: none
+    action: "Records lead-to-meeting conversion rates, host organizer allocation, and booking attribution metrics"
+
+  - topic: perc.notification.notification-delivered
+    from_service: notification-service
+    filter: none
+    action: "Tracks Web Push staff alert delivery SLAs and internal team notification response times"
+
+  - topic: perc.workflow.status-updated
+    from_service: workflow-service
+    filter: none
+    action: "Records pipeline stage velocity (time spent per stage) and conversion funnel drop-off rates"
+
+produces: []  # Passive metrics sink — no domain event output

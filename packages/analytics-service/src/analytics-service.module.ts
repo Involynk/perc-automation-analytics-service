@@ -4,14 +4,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { seedDatabase } from '@perc/shared';
 import { SupabaseModule } from './supabase/supabase.module';
-import { WebhookController } from './webhooks/webhook.controller';
-import { LeadController } from './webhooks/lead.controller';
-import { MessageController } from './webhooks/message.controller';
-import { WorkflowController } from './webhooks/workflow.controller';
-import { PromiseController } from './webhooks/promise.controller';
-import { MeetingController } from './webhooks/meeting.controller';
 import { AnalyticsController } from './webhooks/analytics.controller';
-import { LeadService } from './webhooks/lead.service';
+import { AnalyticsService } from './webhooks/analytics.service';
+import { AnalyticsListener } from './webhooks/listeners/analytics.listener';
 import { EngineModule } from './webhooks/engine.module';
 
 @Module({
@@ -22,19 +17,17 @@ import { EngineModule } from './webhooks/engine.module';
     EngineModule,
   ],
   controllers: [
-    WebhookController,
-    LeadController,
-    MessageController,
-    WorkflowController,
-    PromiseController,
-    MeetingController,
     AnalyticsController,
   ],
   providers: [
-    LeadService,
+    AnalyticsService,
+    AnalyticsListener,
+  ],
+  exports: [
+    AnalyticsService,
   ],
 })
-export class ApiGatewayModule implements OnModuleInit {
+export class AnalyticsServiceModule implements OnModuleInit {
   constructor(private supabase: SupabaseClient) {}
 
   async onModuleInit() {
