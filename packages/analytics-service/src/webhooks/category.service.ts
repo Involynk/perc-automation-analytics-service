@@ -23,7 +23,7 @@ export class CategoryService {
 
     for (const cat of ORDERED_CATEGORIES) {
       const keywords = CATEGORY_KEYWORDS[cat];
-      if (keywords.some((kw) => lower.includes(kw))) {
+      if (keywords.some((kw: string) => lower.includes(kw))) {
         matched.push(cat);
       }
     }
@@ -45,7 +45,7 @@ export class CategoryService {
 
     for (const evt of ORDERED_TRIGGER_EVENTS) {
       const keywords = TRIGGER_KEYWORDS[evt];
-      if (keywords && keywords.some((kw) => lower.includes(kw))) {
+      if (keywords && keywords.some((kw: string) => lower.includes(kw))) {
         return evt;
       }
     }
@@ -58,7 +58,7 @@ export class CategoryService {
 
     const lower = text.toLowerCase();
     const keywords = TRIGGER_KEYWORDS[TRIGGER_MEETING_REQUESTED] || [];
-    if (keywords.some((kw) => lower.includes(kw))) {
+    if (keywords.some((kw: string) => lower.includes(kw))) {
       if (/(book a demo|schedule a demo|demo)/.test(lower)) return 'demo';
       if (/(book a call|schedule a call|call)/.test(lower)) return 'call';
       return 'meeting';
@@ -73,7 +73,7 @@ export class CategoryService {
 
     const lower = text.toLowerCase();
     const keywords = TRIGGER_KEYWORDS[triggerEvent] || [];
-    const hits = keywords.filter((kw) => lower.includes(kw)).length;
+    const hits = keywords.filter((kw: string) => lower.includes(kw)).length;
 
     if (hits <= 0) return 0.4;
     return Math.min(0.98, 0.55 + hits * 0.12);
