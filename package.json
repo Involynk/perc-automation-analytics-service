@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build:shared": "node node_modules/typescript/bin/tsc -p packages/shared/tsconfig.json",
+    "build:shared": "node node_modules/typescript/bin/tsc -p packages/shared",
     "build": "npm run build:shared && node node_modules/@nestjs/cli/bin/nest.js build analytics-service",
     "start": "node node_modules/@nestjs/cli/bin/nest.js start analytics-service",
     "start:prod": "node dist/packages/analytics-service/src/main",
